@@ -12,7 +12,7 @@ class BaseOutletController extends Controller {
 
 export class OutletController extends BaseOutletController {
   static classes = ["connected", "disconnected"]
-  static outlets = ["beta", "gamma", "delta", "omega", "namespaced--epsilon"]
+  static outlets = ["beta", "gamma", "delta", "omega", "namespaced--epsilon", "tango@romeo"]
 
   static values = {
     alphaOutletConnectedCallCount: Number,
@@ -24,6 +24,8 @@ export class OutletController extends BaseOutletController {
     gammaOutletDisconnectedCallCount: Number,
     namespacedEpsilonOutletConnectedCallCount: Number,
     namespacedEpsilonOutletDisconnectedCallCount: Number,
+    tangoOutletConnectedCallCount: Number,
+    tangoOutletDisconnectedCallCount: Number,
   }
 
   betaOutlet!: Controller | null
@@ -31,6 +33,10 @@ export class OutletController extends BaseOutletController {
   betaOutletElement!: Element | null
   betaOutletElements!: Element[]
   hasBetaOutlet!: boolean
+
+  tangoOutlet!: Controller | null
+  tangoOutletElement!: Element | null
+  hasTangoOutlet!: boolean
 
   namespacedEpsilonOutlet!: Controller | null
   namespacedEpsilonOutlets!: Controller[]
@@ -52,6 +58,8 @@ export class OutletController extends BaseOutletController {
   gammaOutletDisconnectedCallCountValue = 0
   namespacedEpsilonOutletConnectedCallCountValue = 0
   namespacedEpsilonOutletDisconnectedCallCountValue = 0
+  tangoOutletConnectedCallCountValue = 0
+  tangoOutletDisconnectedCallCountValue = 0
 
   connect() {
     this.betaOutletsInConnectValue = this.betaOutlets.length
@@ -90,5 +98,15 @@ export class OutletController extends BaseOutletController {
   namespacedEpsilonOutletDisconnected(_outlet: Controller, element: Element) {
     if (this.hasDisconnectedClass) element.classList.add(this.disconnectedClass)
     this.namespacedEpsilonOutletDisconnectedCallCountValue++
+  }
+
+  tangoOutletConnected(_outlet: Controller, element: Element) {
+    if (this.hasConnectedClass) element.classList.add(this.connectedClass)
+    this.tangoOutletConnectedCallCountValue++
+  }
+
+  tangoOutletDisconnected(_outlet: Controller, element: Element) {
+    if (this.hasDisconnectedClass) element.classList.add(this.disconnectedClass)
+    this.tangoOutletDisconnectedCallCountValue++
   }
 }

@@ -3,6 +3,7 @@ import { AttributeObserver, AttributeObserverDelegate } from "../mutation-observ
 import { SelectorObserver, SelectorObserverDelegate } from "../mutation-observers"
 import { Context } from "./context"
 import { Controller } from "./controller"
+import { OutletDefinition } from "./outlet_definition"
 
 import { readInheritableStaticArrayValues } from "./inheritable_statics"
 
@@ -92,7 +93,8 @@ export class OutletObserver implements AttributeObserverDelegate, SelectorObserv
   selectorMatchElement(element: Element, { outletName }: OutletObserverDetails) {
     const selector = this.selector(outletName)
     const hasOutlet = this.hasOutlet(element, outletName)
-    const hasOutletController = element.matches(`[${this.schema.controllerAttribute}~=${outletName}]`)
+    const controller = this.scope.outlets.getIdentifierForOutletName(outletName)
+    const hasOutletController = element.matches(`[${this.schema.controllerAttribute}~=${controller}]`)
 
     if (selector) {
       return hasOutlet && hasOutletController && element.matches(selector)
@@ -206,14 +208,19 @@ export class OutletObserver implements AttributeObserverDelegate, SelectorObserv
       const constructor = module.definition.controllerConstructor
       const outlets = readInheritableStaticArrayValues(constructor, "outlets")
 
-      outlets.forEach((outlet) => dependencies.add(outlet, module.identifier))
+      outlets.forEach((outletDefinitionString) => {
+        const outletDefinition = new OutletDefinition(outletDefinitionString)
+        dependencies.add(outletDefinition.identifier, module.identifier)
+      })
     })
 
     return dependencies
   }
 
   private get outletDefinitions() {
-    return this.outletDependencies.getKeysForValue(this.identifier)
+    const constructor = this.context.module.definition.controllerConstructor
+    const outlets = readInheritableStaticArrayValues(constructor, "outlets")
+    return outlets.map((outlet) => new OutletDefinition(outlet).name)
   }
 
   private get dependentControllerIdentifiers() {
@@ -230,7 +237,8 @@ export class OutletObserver implements AttributeObserverDelegate, SelectorObserv
   }
 
   private getOutlet(element: Element, outletName: string) {
-    return this.application.getControllerForElementAndIdentifier(element, outletName)
+    const identifier = this.scope.outlets.getIdentifierForOutletName(outletName)
+    return this.application.getControllerForElementAndIdentifier(element, identifier)
   }
 
   private getOutletFromMap(element: Element, outletName: string) {

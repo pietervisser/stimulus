@@ -21,6 +21,7 @@ export default class OutletTests extends ControllerTestCase(OutletController) {
         data-${this.identifier}-beta-outlet=".beta"
         data-${this.identifier}-delta-outlet=".delta"
         data-${this.identifier}-namespaced--epsilon-outlet=".epsilon"
+        data-${this.identifier}-tango-outlet=".romeo"
       >
         <div data-controller="gamma" class="gamma" id="gamma2"></div>
       </div>
@@ -34,10 +35,11 @@ export default class OutletTests extends ControllerTestCase(OutletController) {
       <div data-controller="namespaced--epsilon" class="epsilon" id="epsilon2"></div>
 
       <div class="beta" id="beta5"></div>
+      <div class="romeo" data-controller="romeo"></div>
     </div>
   `
   get identifiers() {
-    return ["test", "alpha", "beta", "gamma", "delta", "omega", "namespaced--epsilon"]
+    return ["test", "alpha", "beta", "gamma", "delta", "omega", "namespaced--epsilon", "romeo"]
   }
 
   "test OutletSet#find"() {
@@ -145,6 +147,24 @@ export default class OutletTests extends ControllerTestCase(OutletController) {
     )
     this.assert.equal(epsilonOutlets.length, 2)
     this.assert.equal(this.controller.namespacedEpsilonOutletConnectedCallCountValue, 2)
+  }
+
+  "test renamed outlet properties"() {
+    const element = this.findElement(".romeo")
+    const romeoController = this.controller.application.getControllerForElementAndIdentifier(element, "romeo")
+
+    this.assert.equal(this.controller.tangoOutlet, romeoController)
+    this.assert.equal(this.controller.tangoOutletElement, element)
+    this.assert.equal(this.controller.hasTangoOutlet, true)
+  }
+
+  "test renamed outlet connected callback fires"() {
+    this.assert.equal(this.controller.tangoOutletConnectedCallCountValue, 1)
+    const tangoOutletElement = this.controller.tangoOutletElement
+    this.assert.ok(
+      tangoOutletElement?.classList.contains("connected"),
+      `expected "${tangoOutletElement?.className}" to contain "connected"`
+    )
   }
 
   async "test outlet connected callback when element is inserted"() {
@@ -313,6 +333,7 @@ export default class OutletTests extends ControllerTestCase(OutletController) {
     this.assert.equal(this.controller.betaOutletConnectedCallCountValue, 2)
     this.assert.equal(this.controller.gammaOutletConnectedCallCountValue, 0)
     this.assert.equal(this.controller.namespacedEpsilonOutletConnectedCallCountValue, 2)
+    this.assert.equal(this.controller.tangoOutletConnectedCallCountValue, 1)
 
     await this.setAttribute(this.controller.element, "data-some-random-attribute", "#alpha1")
 
@@ -320,11 +341,13 @@ export default class OutletTests extends ControllerTestCase(OutletController) {
     this.assert.equal(this.controller.betaOutletConnectedCallCountValue, 2)
     this.assert.equal(this.controller.gammaOutletConnectedCallCountValue, 0)
     this.assert.equal(this.controller.namespacedEpsilonOutletConnectedCallCountValue, 2)
+    this.assert.equal(this.controller.tangoOutletConnectedCallCountValue, 1)
 
     this.assert.equal(this.controller.alphaOutletDisconnectedCallCountValue, 0)
     this.assert.equal(this.controller.betaOutletDisconnectedCallCountValue, 0)
     this.assert.equal(this.controller.gammaOutletDisconnectedCallCountValue, 0)
     this.assert.equal(this.controller.namespacedEpsilonOutletDisconnectedCallCountValue, 0)
+    this.assert.equal(this.controller.tangoOutletDisconnectedCallCountValue, 0)
   }
 
   async "test outlet connect callback when the controlled element's outlet attribute is changed"() {

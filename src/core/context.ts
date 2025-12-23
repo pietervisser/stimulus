@@ -29,6 +29,9 @@ export class Context implements ErrorHandler, TargetObserverDelegate, OutletObse
     this.targetObserver = new TargetObserver(this, this)
     this.outletObserver = new OutletObserver(this, this)
 
+    // Initialize outlet definitions so OutletSet knows about renamed outlets
+    this.scope.outlets.setOutletDefinitionsFromConstructor(module.controllerConstructor)
+
     try {
       this.controller.initialize()
       this.logDebugActivity("initialize")
