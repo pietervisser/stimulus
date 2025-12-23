@@ -67,6 +67,26 @@ export default class extends Controller {
 }
 ```
 
+### Renaming outlets
+
+You can also rename an outlet by using the `@` symbol in the `static outlets` array. The name before the `@` symbol is the outlet name you will use to reference it in your controller, and the name after the `@` symbol is the actual controller identifier of the outlet.
+
+```html
+<div data-controller="chat" data-chat-status-outlet=".online-user"></div>
+```
+
+```js
+// chat_controller.js
+
+export default class extends Controller {
+  static outlets = [ "status@user-status" ]
+
+  connect () {
+    this.statusOutlets.forEach(status => ...)
+  }
+}
+```
+
 ## Properties
 
 For each outlet defined in the `static outlets` array, Stimulus adds five properties to your controller, where `[name]` corresponds to the outlet's controller identifier:
